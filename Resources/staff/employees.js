@@ -1,13 +1,10 @@
-Ti.include("gitana/gitana.js");
-// use 10.0.2.2 for android
-var win = Ti.UI.currentWindow;
-var gitanaContext = win.gitanaContext;
+Ti.include("../cloudcms/gitana.js");
+Ti.include("../common/app_common.js");
+
 var rows = [];
 var preChar = '';
 
-gitanaContext.branch().getServer().listUsers({"sort":{"lastName": 1}}).filter(function() {
-    return (this.getCompanyName() == 'Dunder Mifflin Paper Company, Inc.');
-}).each(function(key, user, index) {
+Chain(whcDomain).listUsers({"sort":{"lastName": 1}}).each(function(key, user, index) {
     var fullName = user.getLastName() + ',' + user.getFirstName();
     var userId = user.getId();
     Ti.API.info("User: " + userId + " name:" + fullName);
@@ -30,8 +27,9 @@ gitanaContext.branch().getServer().listUsers({"sort":{"lastName": 1}}).filter(fu
             url: 'employee.js',
             title: e.rowData.title,
             userId: e.rowData.userId,
-            backgroundColor:'#aebcad',
-            gitanaContext: gitanaContext
+            backgroundColor:'#ffffff',
+            cloudCMSContext: cloudCMSContext,
+            whcDomain: whcDomain
         });
         Ti.UI.currentTab.open(employeeWin);
     });

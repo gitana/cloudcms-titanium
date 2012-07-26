@@ -1,8 +1,8 @@
-#appname: gitana-titanium
-#publisher: drq
-#url: www.gitanasoft.com
-#image: appicon.png
-#appid: com.gitanasoft.tianium
-#desc: undefined
-#type: mobile
-#guid: febec145-b13f-434a-81e4-997438b05bb3
+#appname:gitana-titanium
+#publisher:Gitana Software
+#url:http://www.gitanasoft.com
+#image:appicon.png
+#appid:com.gitanasoft.tianium
+#desc:Gitana Software
+#type:ipad
+#guid:febec145-b13f-434a-81e4-997438b05bb3
