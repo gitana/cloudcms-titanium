@@ -62,9 +62,9 @@ cloudCMSContext.branch().readNode(nodeId).then(function() {
 		var updateNodeView = function(translation) {
 			win.title = translation['title'];
 			tableview.headerTitle = translation['title'];
-			rows[0].children[0].text = translation['teaser'];
 			var bodyDetails = translation['body'];
-			var count = 0;
+            bodyDetailsRow.children[0].text = translation['teaser'];
+			var count = 1;
 			for(var index = 0; index < bodyDetails.length; index++) {
 				var item = bodyDetails[index];
 				if(item.subTitle) {
@@ -80,7 +80,6 @@ cloudCMSContext.branch().readNode(nodeId).then(function() {
 		buttonBar.addEventListener('click', function(e) {
 			var index = e.index;
 			var selectedLocale = translationLocales[index];
-			Ti.API.info("Selected locale " + selectedLocale);
 			if(selectedLocale != currentLocale) {
 				if(translations[selectedLocale]) {
 					updateNodeView(translations[selectedLocale]);

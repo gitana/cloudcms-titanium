@@ -144,8 +144,6 @@ table.addEventListener('click', function(e) {
 	if(e.rowData.title == 'More ...') {
 		addBatchRows();
 	} else {
-		Ti.API.info("Node Type " + e.rowData.type);
-
 		var itemJs = e.rowData.type == "whc:event" ? "event.js" : "news.js";
 
 		var newwin = Ti.UI.createWindow({

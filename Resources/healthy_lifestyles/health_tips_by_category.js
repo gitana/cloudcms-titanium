@@ -42,57 +42,64 @@ var deleteHasMoreRow = function() {
 var addBatchRows = function() {
 	cloudCMSContext.branch().readNode(nodeId).listChildren({
 		"skip" : loadedNodesCounter,
-		"limit" : batchSize
-	}).count(function(count) {
-		if(count < batchSize) {
-			hasMoreNodes = false;
-		}
-	}).each(function(key, node, index) {
+		"limit" : batchSize,
+        "sort" : {
+            "_system.modified_on.ms" : -1
+        }
+    }).count(function(count) {
+        this.totalRows(function(totalRows) {
+            //Ti.API.info("Count " + count);
+            //Ti.API.info("Total Rows " + totalRows);
+            //Ti.API.info("loadedNodesCounter " + loadedNodesCounter);
 
-		var thumbnailUrl = null;
+            if (totalRows <= loadedNodesCounter + count) {
+                hasMoreNodes = false;
+            } else {
+                hasMoreNodes = true;
+            }
+        }).each(function(key, node, index) {
 
-		this.listAttachments(true).then(function() {
-			if(this.map["thumb"]) {				this.select("thumb").then(function() {
-					thumbnailUrl = this.getDownloadUri();
-				});
-			} else if (this.map["default"]) {
-				this.select("thumb").then(function() {
-					thumbnailUrl = this.getDownloadUri();
-				});
-			}
-		});
+            var thumbnailUrl = null;
 
-		this.then(function() {
+            this.listAttachments(true).then(function() {
+                if(this.map["thumb"]) {
+                    this.select("thumb").then(function() {
+                        thumbnailUrl = this.getDownloadUri();
+                    });
+                } else if (this.map["default"]) {
+                    this.select("thumb").then(function() {
+                        thumbnailUrl = this.getDownloadUri();
+                    });
+                }
+            });
 
-			Ti.API.info("image " + thumbnailUrl);
+            this.then(function() {
+                var row = createListItemView({
+                    id : node.getId(),
+                    type : node.getTypeQName(),
+                    title : node.get('title'),
+                    thumbnailUrl : thumbnailUrl,
+                    details : node.get('teaser')
+                });
 
-			var row = createListItemView({
-				id : node.getId(),
-				type : node.getTypeQName(),
-				title : node.get('title'),
-				thumbnailUrl : thumbnailUrl,
-				details : node.get('teaser')
-			});
+                if(loadedNodesCounter == 0) {
+                    table.appendRow(row);
+                } else {
+                    table.insertRowAfter(loadedNodesCounter-1, row);
+                }
+                loadedNodesCounter++;
+            });
 
-			Ti.API.info("loadedNodesCounter " + loadedNodesCounter);
-			
-			if(loadedNodesCounter == 0) {
-				table.appendRow(row);
-			} else {
-				table.insertRowAfter(loadedNodesCounter-1, row);
-			}
-			loadedNodesCounter++;
-		});
-		
-	}).then(function() {
-		if(!hasMoreNodes) {
-			deleteHasMoreRow();
-		} else {
-			if(hasMoreRow == null) {
-				createHasMoreRow();
-			}
-		}
-	});
+        }).then(function() {
+            if(!hasMoreNodes) {
+                deleteHasMoreRow();
+            } else {
+                if(hasMoreRow == null) {
+                    createHasMoreRow();
+                }
+            }
+        });
+    });
 };
 
 win.addEventListener('refresh', function(e) {
@@ -101,8 +108,15 @@ win.addEventListener('refresh', function(e) {
             animationStyle : Titanium.UI.iPhone.RowAnimationStyle.UP
         });
     }
+    if (hasMoreNodes) {
+        table.deleteRow(0, {
+            animationStyle : Titanium.UI.iPhone.RowAnimationStyle.UP
+        });
+        hasMoreRow = null;
+    }
     loadedNodesCounter = 0;
-    Ti.API.info("Triggered refresh events.");
+    hasMoreNodes = false;
+    //Ti.API.info("Triggered refresh events.");
     footer.children[1].text = "Updated " + getCurrentDateTime();
     addBatchRows();
 });
@@ -121,8 +135,6 @@ table.addEventListener('click', function(e) {
 	if(e.rowData.title == 'More ...') {
 		addBatchRows();
 	} else {
-		Ti.API.info("Node Type " + e.rowData.type);
-
 		var newwin = Ti.UI.createWindow({
 			url : 'health_tip.js',
 			title : e.rowData.name,

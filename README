@@ -1,18 +1,21 @@
-Welcome to your Appcelerator Titanium Mobile Project
+Welcome to Cloud CMS Titanium Mobile Project
 
-This is a blank project.  Start by editing your application's app.js to 
-make your first mobile project using Titanium.
+This project provides a reference application which demonstrates how to build a Titanium Mobile application
+on top of Cloud CMS platform.
 
+### Resources
 
+Git Hub: http://github.com/gitana/cloudcms-titanium
 
-----------------------------------
-Stuff our legal folk make us say:
+JavaScript homepage: http://code.cloudcms.com/javascript-driver
 
-Appcelerator, Appcelerator Titanium and associated marks and logos are 
-trademarks of Appcelerator, Inc. 
+JavaScript documentation: http://docs.cloudcms.com
 
-Titanium is Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+### Questions and Bug Reports
 
-Titanium is licensed under the Apache Public License (Version 2). Please
-see the LICENSE file for the full license.
+https://gitana.atlassian.net/browse/TITANIUM
+
+### Maintainers
+* Yong Qu     drq@cloudcms.com
+* Michael Uzquiano     uzi@cloudcms.com
 

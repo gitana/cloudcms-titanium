@@ -7,7 +7,6 @@ var preChar = '';
 Chain(whcDomain).listUsers({"sort":{"lastName": 1}}).each(function(key, user, index) {
     var fullName = user.getLastName() + ',' + user.getFirstName();
     var userId = user.getId();
-    Ti.API.info("User: " + userId + " name:" + fullName);
     var row = {title:fullName, hasDetail:true, userId:userId};
     var currentChar = fullName.charAt(0);
     if ( fullName.charAt(0) != preChar) {

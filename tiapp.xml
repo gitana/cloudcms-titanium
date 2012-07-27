@@ -8,8 +8,8 @@
         <target device="android">true</target>
     </deployment-targets>
     <sdk-version>1.6.2</sdk-version>
-    <id>com.gitanasoft.tianium</id>
-    <name>gitana-titanium</name>
+    <id>com.cloudcms.tianium</id>
+    <name>cloudcms-titanium</name>
     <version>1.0</version>
     <publisher>Gitana Software Inc.</publisher>
     <url>http://www.cloudcms.com</url>

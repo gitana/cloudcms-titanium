@@ -130,12 +130,10 @@ var createArrayItemsRow = function(data, header) {
 var branch = cloudCMSContext.branch();
 whcDomain.readPrincipal(userId).then(function() {
 	var user = this;
-	Ti.API.info("User: " + user.getName());
 	var avatarImageUrl = user.attachment('avatar').getDownloadUri();
 	var fullName = user.getLastName() + ',' + user.getFirstName();
 	var friendlyName = user.getFirstName() + ' ' + user.getLastName();
 	var email = user.getEmail();
-	Ti.API.info("Email: " + email);
 
 	this.readPersonNode(branch).then(function() {
 		var personNode = this;
@@ -147,8 +145,6 @@ whcDomain.readPrincipal(userId).then(function() {
 		var specialty = this.get('specialty') ? this.get('specialty') : [];
 		var education = this.get('education') ? this.get('education') : [];
 		var languages = this.get('languages') ? this.get('languages') : [];
-
-		Ti.API.info("Position: " + position);
 
 		var avatarImage = Titanium.UI.createImageView({
 			image : avatarImageUrl,
@@ -336,15 +332,11 @@ whcDomain.readPrincipal(userId).then(function() {
 						'name' : otherUserFullName,
 						'avatar' : otherUserAvatarImageUrl
 					};
-					Ti.API.info("Other user details: " + JSON.stringify(otherUserDetails));
-					Ti.API.info("direction: " + direction);
 					if(type == "whc:manages") {
 						if(direction == 'OUTGOING') {
 							subordinates.push(otherUserDetails);
-							Ti.API.info("pushed to subordinates");
 						} else if(direction == 'INCOMING') {
 							supervisors.push(otherUserDetails);
-							Ti.API.info("pushed to superviors");
 						}
 					} else {
 						//relationships.push(otherUserDetails);
@@ -352,8 +344,6 @@ whcDomain.readPrincipal(userId).then(function() {
 				});
 			});
 		}).then(function() {
-
-			Ti.API.info("supervisors.length : " + supervisors.length);
 			if(supervisors.length > 0) {
 				for(var index = 0; index < supervisors.length; index++) {
 					var otherUserDetailsRow = createAssociationUserRow(supervisors[index], index, 'Supervisors');

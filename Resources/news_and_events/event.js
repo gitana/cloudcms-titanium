@@ -30,10 +30,10 @@ cloudCMSContext.branch().readNode(nodeId).then(function() {
 			}
 			if(item.time) {
 				if(item.time.start) {
-					itemText += " " + item.time.start;
+					itemText += " " + formatTime(item.time.start);
 				}
 				if(item.time.end) {
-					itemText += "-" + item.time.end;
+					itemText += "-" + formatTime(item.time.end);
 				}
 			}
 			var itemLabel = Ti.UI.createLabel({

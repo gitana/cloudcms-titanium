@@ -54,8 +54,15 @@ win.addEventListener('refresh', function(e) {
             animationStyle : Titanium.UI.iPhone.RowAnimationStyle.UP
         });
     }
+    if (hasMoreNodes) {
+        table.deleteRow(1, {
+            animationStyle : Titanium.UI.iPhone.RowAnimationStyle.UP
+        });
+        hasMoreRow = null;
+    }
     loadedNodesCounter = 0;
-    Ti.API.info("Triggered refresh events.");
+    hasMoreNodes = false;
+    //Ti.API.info("Triggered refresh events.");
     footer.children[1].text = "Updated " + getCurrentDateTime();
     addBatchRows();
 });
@@ -91,62 +98,71 @@ var deleteHasMoreRow = function() {
 };
 
 var addBatchRows = function() {
-	cloudCMSContext.branch().queryNodes({
-		'_type' : {
-			"$in" : ["whc:news", "whc:event"]
-		}
-	}, {
-		"skip" : loadedNodesCounter,
-		"limit" : batchSize
-	}).count(function(count) {
-		if(count < batchSize) {
-			hasMoreNodes = false;
-		}
-	}).each(function(key, node, index) {
+    cloudCMSContext.branch().queryNodes({
+        '_type' : {
+            "$in" : ["whc:news", "whc:event"]
+        }
+    }, {
+        "skip" : loadedNodesCounter,
+        "limit" : batchSize,
+        "sort" : {
+            "_system.modified_on.ms" : -1
+        }
+    }).count(function(count) {
 
-		var thumbnailUrl = null;
+        this.totalRows(function(totalRows) {
+            //Ti.API.info("Count " + count);
+            //Ti.API.info("Total Rows " + totalRows);
+            //Ti.API.info("loadedNodesCounter " + loadedNodesCounter);
 
-		this.listAttachments(true).then(function() {
-			if(this.map["thumb"]) {
-				this.select("thumb").then(function() {
-					thumbnailUrl = this.getDownloadUri();
-				});
-			} else if (this.map["default"]) {
-				this.select("thumb").then(function() {
-					thumbnailUrl = this.getDownloadUri();
-				});
-			}
-		});
+            if (totalRows <= loadedNodesCounter + count) {
+                hasMoreNodes = false;
+            } else {
+                hasMoreNodes = true;
+            }
+        }).each(function(key, node, index) {
 
-		this.then(function() {
+            var thumbnailUrl = null;
 
-			Ti.API.info("image " + thumbnailUrl);
+            this.listAttachments(true).then(function() {
+                if (this.map["thumb"]) {
+                    this.select("thumb").then(function() {
+                        thumbnailUrl = this.getDownloadUri();
+                    });
+                } else if (this.map["default"]) {
+                    this.select("thumb").then(function() {
+                        thumbnailUrl = this.getDownloadUri();
+                    });
+                }
+            });
 
-			var row = createListItemView({
-				id : node.getId(),
-				type : node.getTypeQName(),
-				title : node.get('title'),
-				thumbnailUrl : thumbnailUrl,
-				details : node.get('teaser')
-			});
+            this.then(function() {
+                var row = createListItemView({
+                    id : node.getId(),
+                    type : node.getTypeQName(),
+                    title : node.get('title'),
+                    thumbnailUrl : thumbnailUrl,
+                    details : node.get('teaser')
+                });
 
-			if(loadedNodesCounter == 0) {
-				table.appendRow(row);
-			} else {
-				table.insertRowAfter(loadedNodesCounter, row);
-			}
-			loadedNodesCounter++;
-		});
-		
-	}).then(function() {
-		if(!hasMoreNodes) {
-			deleteHasMoreRow();
-		} else {
-			if(hasMoreRow == null) {
-				createHasMoreRow();
-			}
-		}
-	});
+                if (loadedNodesCounter == 0) {
+                    table.appendRow(row);
+                } else {
+                    table.insertRowAfter(loadedNodesCounter, row);
+                }
+                loadedNodesCounter++;
+            });
+
+        }).then(function() {
+            if (!hasMoreNodes) {
+                deleteHasMoreRow();
+            } else {
+                if (hasMoreRow == null) {
+                    createHasMoreRow();
+                }
+            }
+        });
+    });
 };
 
 var footer = createFooter(win);
@@ -160,12 +176,10 @@ table = Ti.UI.createTableView({
 
 table.addEventListener('click', function(e) {
 	// if the title of the row is more, we need to fetch more data
-	Ti.API.info("Event data " + JSON.stringify(e));
+	//Ti.API.info("Event data " + JSON.stringify(e));
     if(e.rowData.title == 'More ...') {
 		addBatchRows();
 	} else {
-		Ti.API.info("Node Type " + e.rowData.type);
-
 		var itemJs = e.rowData.type == "whc:event" ? "event.js" : "news.js";
 
 		var newwin = Ti.UI.createWindow({

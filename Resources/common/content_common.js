@@ -123,11 +123,6 @@ var getSpamStats = function(commentNode) {
  */
 var createCommentNodeView = function(commentNode) {
 
-	Ti.API.info("Comment id " + commentNode.getId());
-	Ti.API.info("Comment title " + commentNode.get('title'));
-	Ti.API.info("Comment description " + commentNode.get('description'));
-	Ti.API.info("Comment rating " + commentNode.get('rating'));
-
 	var row = Ti.UI.createTableViewRow({
 		height : 'auto',
 		data : commentNode.getId()
@@ -497,13 +492,11 @@ var createNodeCommentsView = function(rows, thisNode) {
 			if(rateButton.title && dataMapping[rateButton.title]) {
 				initSelection = rateButton.title;
 				reviewRatingField.setSelectedRow(0, dataMapping[rateButton.title], false);
-				Ti.API.info("You selected row: " + dataMapping[rateButton.title]);
 			}
 			reviewRatingField.selectionIndicator = true;
 			ratingWin.add(reviewRatingField);
 			reviewRatingField.addEventListener('change', function(e) {
 				if(e.row.title != initSelection) {
-					Ti.API.info("You selected row: " + e.row + ", column: " + e.column + ", title: " + e.row.title);
 					rateButton.title = e.row.title;
 					ratingWin.close();
 				}
@@ -547,7 +540,6 @@ var createNodeCommentsView = function(rows, thisNode) {
 					this.reload().associateOf(thisNode, "a:has_comment").then(function(status) {
 						this.subchain(thisNode).reload().then(function() {
 							statsLabel.text = "Rated " + Math.round(this.get('stats')['ratingAverageValue'] * 10) / 10 + "/5" + ' based on ' + this.get('stats')['ratingTotalCount'] + ' reviews.';
-							Ti.API.info("reviewsIndex...." + reviewsIndex);
 							tableview.insertRowAfter(reviewsIndex - 1, createCommentNodeView(commentNode), {
 								animationStyle : Titanium.UI.iPhone.RowAnimationStyle.DOWN
 							});
@@ -574,8 +566,6 @@ var createNodeCommentsView = function(rows, thisNode) {
 	var authInfo = cloudCMSContext.getDriver().getAuthInfo();
 	var currentUserId = authInfo.getPrincipalDomainId() + "/" + authInfo.getPrincipalId();
 
-	Ti.API.info("Current authenticated user: " + currentUserId);
-
 	thisNode.subchain(thisNode.getBranch()).readPersonNode(currentUserId).then(function() {
 		personNode = this;
 	});
@@ -590,7 +580,6 @@ var createNodeCommentsView = function(rows, thisNode) {
 		associationNode.readTargetNode().then(function() {
 			var commentNode = this;
 			rows.push(createCommentNodeView(commentNode));
-			Ti.API.info("Comment " + index);
 		});
 	});
 }
@@ -747,9 +736,6 @@ var createRelatedNodesView = function(rows, node) {
 			"$ne" : node.getId()
 		}
 	}).count(function(count) {
-
-		Ti.API.info("Total related node " + count);
-
 	}).each(function(key, relatedNode, index) {
 
 		var thumbnailUrl = null;
@@ -767,9 +753,6 @@ var createRelatedNodesView = function(rows, node) {
 		});
 
 		this.then(function() {
-
-			Ti.API.info("image " + thumbnailUrl);
-
 			var row = createListItemView({
 				id : relatedNode.getId(),
 				type : relatedNode.getTypeQName(),
@@ -793,8 +776,6 @@ var createRelatedNodesView = function(rows, node) {
  * @param node
  */
 var prepareItemTableView = function(node) {
-	Ti.API.info("Prepare table view....");
-
 	var title = node.get('title');
 
     // Custom header row

@@ -49,7 +49,6 @@ cloudCMSContext.branch().readNode('whc:aboutus').then(function() {
 
 	this.listAttachments(true).each(function() {
 		if(this.getId() && this.getId().indexOf('photo') == 0) {
-			Ti.API.info("Photo " + this.getId() + " " + this.getDownloadUri());
 			images.push(this.getDownloadUri());
 		}
 	}).then(function() {
@@ -130,7 +129,7 @@ cloudCMSContext.branch().readNode('whc:aboutus').then(function() {
 			});
             hoursTextView.add(dayLabel);
 			var hourLabel = Ti.UI.createLabel({
-				text : hours[i].time.start + "-" + hours[i].time.end,
+				text : formatTime(hours[i].time.start) + "-" + formatTime(hours[i].time.end),
 				color : '#000000',
 				shadowColor : '#FFFFE6',
 				shadowOffset : {
