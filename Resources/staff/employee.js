@@ -11,13 +11,14 @@ var createAssociationUserRow = function(otherUser, index, header) {
 	var otherUserAvatarImage = Titanium.UI.createImageView({
 		image : otherUser.avatar,
 		width : 80,
+	    height : 80,
 		left : 5,
 		top : 10,
 		bottom : 10
 	});
 
 	var options = {
-		height : 'auto'
+		height : Ti.UI.SIZE
 	};
 
 	if(index == 0) {
@@ -28,7 +29,7 @@ var createAssociationUserRow = function(otherUser, index, header) {
 	otherUserDetailsRow.add(otherUserAvatarImage);
 
 	var otherUserTextView = Ti.UI.createView({
-		height : 'auto',
+		height : Ti.UI.SIZE,
 		layout : 'vertical',
 		left : 85,
 		top : 10,
@@ -44,13 +45,14 @@ var createAssociationUserRow = function(otherUser, index, header) {
 			x : 0,
 			y : 1
 		},
-		textAlign : 'left',
-		height : 'auto',
+		textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+		height : Ti.UI.SIZE,
 		top : 10,
 		font : {
 			fontWeight : 'bold',
 			fontSize : 16
-		}
+		},
+		left : 5
 	});
 
 	otherUserTextView.add(otherUserNameLabel);
@@ -59,7 +61,7 @@ var createAssociationUserRow = function(otherUser, index, header) {
 		text : otherUser.position,
 		color : '#000000',
 		shadowColor : '#FFFFE6',
-		textAlign : 'left',
+		textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
 		shadowOffset : {
 			x : 0,
 			y : 1
@@ -67,8 +69,9 @@ var createAssociationUserRow = function(otherUser, index, header) {
 		font : {
 			fontSize : 13
 		},
-		height : 'auto',
-		top : 10
+		height : Ti.UI.SIZE,
+		top : 10,
+		left : 5
 	});
 
 	otherUserTextView.add(otherUserPositionLabel);
@@ -91,12 +94,12 @@ var createAssociationUserRow = function(otherUser, index, header) {
 }
 var createArrayItemsRow = function(data, header) {
 	var arrayItemsRow = Ti.UI.createTableViewRow({
-		height : 'auto',
+		height : Ti.UI.SIZE,
 		header : header
 	});
 
 	var textView = Ti.UI.createView({
-		height : 'auto',
+		height : Ti.UI.SIZE,
 		layout : 'vertical',
 		left : 10,
 		top : 5,
@@ -113,13 +116,14 @@ var createArrayItemsRow = function(data, header) {
 				x : 0,
 				y : 1
 			},
-			textAlign : 'left',
-			height : 'auto',
+			textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+			height : Ti.UI.SIZE,
 			top : 5,
 			font : {
 				fontWeight : 'bold',
 				fontSize : 16
-			}
+			},
+		    left : 5
 		});
 
 		textView.add(arrayItemLabel);
@@ -145,6 +149,8 @@ whcDomain.readPrincipal(userId).then(function() {
 		var specialty = this.get('specialty') ? this.get('specialty') : [];
 		var education = this.get('education') ? this.get('education') : [];
 		var languages = this.get('languages') ? this.get('languages') : [];
+		
+		Ti.API.info("Position " + position);
 
 		var avatarImage = Titanium.UI.createImageView({
 			image : avatarImageUrl,
@@ -156,13 +162,13 @@ whcDomain.readPrincipal(userId).then(function() {
 		});
 
 		var detailsRow = Ti.UI.createTableViewRow({
-			height : 'auto'
+			height : Ti.UI.SIZE
 		});
 
 		detailsRow.add(avatarImage);
 
 		var textView = Ti.UI.createView({
-			height : 'auto',
+			height : Ti.UI.SIZE,
 			layout : 'vertical',
 			left : 90,
 			top : 10,
@@ -178,13 +184,14 @@ whcDomain.readPrincipal(userId).then(function() {
 				x : 0,
 				y : 1
 			},
-			textAlign : 'left',
-			height : 'auto',
+			textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+			height : Ti.UI.SIZE,
 			top : 5,
 			font : {
 				fontWeight : 'bold',
 				fontSize : 16
-			}
+			},
+		    left : 5
 		});
 
 		textView.add(nameLabel);
@@ -198,12 +205,13 @@ whcDomain.readPrincipal(userId).then(function() {
 					x : 0,
 					y : 1
 				},
-				textAlign : 'left',
-				height : 'auto',
+				textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+				height : Ti.UI.SIZE,
 				top : 5,
 				font : {
 					fontSize : 13
-				}
+				},
+		        left : 5
 			});
 			textView.add(nicknameLabel);
 		}
@@ -216,13 +224,14 @@ whcDomain.readPrincipal(userId).then(function() {
 				x : 0,
 				y : 1
 			},
-			textAlign : 'left',
-			height : 'auto',
+			textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+			height : Ti.UI.SIZE,
 			top : 5,
 			font : {
 				fontWeight : 'bold',
 				fontSize : 13
-			}
+			},
+		    left : 5
 		});
 
 		textView.add(positionLabel);
@@ -231,7 +240,7 @@ whcDomain.readPrincipal(userId).then(function() {
 			text : phone,
 			color : '#000000',
 			shadowColor : '#FFFFE6',
-			textAlign : 'left',
+			textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
 			shadowOffset : {
 				x : 0,
 				y : 1
@@ -239,15 +248,16 @@ whcDomain.readPrincipal(userId).then(function() {
 			font : {
 				fontSize : 13
 			},
-			height : 'auto',
-			top : 5
+			height : Ti.UI.SIZE,
+			top : 5,
+		    left : 5
 		});
 
 		var emailLabel = Ti.UI.createLabel({
 			text : email,
 			color : '#000000',
 			shadowColor : '#FFFFE6',
-			textAlign : 'left',
+			textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
 			shadowOffset : {
 				x : 0,
 				y : 1
@@ -255,8 +265,9 @@ whcDomain.readPrincipal(userId).then(function() {
 			font : {
 				fontSize : 13
 			},
-			height : 'auto',
-			top : 5
+			height : Ti.UI.SIZE,
+			top : 5,
+		    left : 5
 		});
 
 		textView.add(phoneLabel);
@@ -282,7 +293,7 @@ whcDomain.readPrincipal(userId).then(function() {
 			text : biography,
 			color : '#000000',
 			shadowColor : '#FFFFE6',
-			textAlign : 'left',
+			textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
 			shadowOffset : {
 				x : 0,
 				y : 1
@@ -290,16 +301,16 @@ whcDomain.readPrincipal(userId).then(function() {
 			font : {
 				fontSize : 13
 			},
-			height : 'auto',
+			height : Ti.UI.SIZE,
 			width : 'auto',
-			height : 'auto',
+			height : Ti.UI.SIZE,
 			top : 10,
 			left : 10,
 			bottom : 10
 		});
 
 		var biographyRow = Ti.UI.createTableViewRow({
-			height : 'auto',
+			height : Ti.UI.SIZE,
 			header : 'Biography'
 		});
 
@@ -317,32 +328,34 @@ whcDomain.readPrincipal(userId).then(function() {
 			},
 			"depth" : 1
 		}).associations().each(function(key, association, index) {
-			var type = association.getTypeQName();
-			var direction = association.getDirection(personNode);
-			this.readOtherNode(personNode).then(function() {
-				var otherPersonId = this.get('principal-id');
-				var otherPersonPosition = this.get('currentPosition') ? this.get('currentPosition') : "";
-				this.subchain(whcDomain).readPrincipal(otherPersonId).then(function() {
-					var otherUser = this;
-					var otherUserAvatarImageUrl = otherUser.attachment('avatar').getDownloadUri();
-					var otherUserFullName = otherUser.getLastName() + ',' + otherUser.getFirstName();
-					var otherUserDetails = {
-						'userId' : otherPersonId,
-						'position' : otherPersonPosition,
-						'name' : otherUserFullName,
-						'avatar' : otherUserAvatarImageUrl
-					};
-					if(type == "whc:manages") {
-						if(direction == 'OUTGOING') {
-							subordinates.push(otherUserDetails);
-						} else if(direction == 'INCOMING') {
-							supervisors.push(otherUserDetails);
+			if(association) {
+				var type = association.getTypeQName();
+				var direction = association.getDirection(personNode);
+				this.readOtherNode(personNode).then(function() {
+					var otherPersonId = this.get('principal-id');
+					var otherPersonPosition = this.get('currentPosition') ? this.get('currentPosition') : "";
+					this.subchain(whcDomain).readPrincipal(otherPersonId).then(function() {
+						var otherUser = this;
+						var otherUserAvatarImageUrl = otherUser.attachment('avatar').getDownloadUri();
+						var otherUserFullName = otherUser.getLastName() + ',' + otherUser.getFirstName();
+						var otherUserDetails = {
+							'userId' : otherPersonId,
+							'position' : otherPersonPosition,
+							'name' : otherUserFullName,
+							'avatar' : otherUserAvatarImageUrl
+						};
+						if(type == "whc:manages") {
+							if(direction == 'OUTGOING') {
+								subordinates.push(otherUserDetails);
+							} else if(direction == 'INCOMING') {
+								supervisors.push(otherUserDetails);
+							}
+						} else {
+							//relationships.push(otherUserDetails);
 						}
-					} else {
-						//relationships.push(otherUserDetails);
-					}
+					});
 				});
-			});
+			}
 		}).then(function() {
 			if(supervisors.length > 0) {
 				for(var index = 0; index < supervisors.length; index++) {

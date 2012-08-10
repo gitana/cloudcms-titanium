@@ -17,7 +17,7 @@ var hasMoreRow = null;
 
 var createHasMoreRow = function() {
 	hasMoreRow = Ti.UI.createTableViewRow({
-		height : 'auto',
+		height : Ti.UI.SIZE,
 		title : 'More ...'
 	});
 	table.appendRow(hasMoreRow);

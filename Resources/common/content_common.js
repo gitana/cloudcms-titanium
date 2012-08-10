@@ -18,7 +18,7 @@ var createListItemView = function(configs) {
 	});
 
 	var row = Ti.UI.createTableViewRow({
-		height : 'auto',
+		height : Ti.UI.SIZE,
 		name : configs.title,
 		type : configs.type,
 		data : configs.id
@@ -27,7 +27,7 @@ var createListItemView = function(configs) {
 	row.add(thumbnailImage);
 
 	var textView = Ti.UI.createView({
-		height : 'auto',
+		height : Ti.UI.SIZE,
 		layout : 'vertical',
 		left : 90,
 		top : 10,
@@ -43,8 +43,9 @@ var createListItemView = function(configs) {
 			x : 0,
 			y : 1
 		},
-		textAlign : 'left',
-		height : 'auto',
+		//textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+		height : Ti.UI.SIZE,
+        left : 5,
 		top : 10,
 		font : {
 			fontWeight : 'bold',
@@ -60,7 +61,7 @@ var createListItemView = function(configs) {
 		text : configs.details,
 		color : '#000000',
 		shadowColor : '#FFFFE6',
-		textAlign : 'left',
+		textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
 		shadowOffset : {
 			x : 0,
 			y : 1
@@ -68,9 +69,9 @@ var createListItemView = function(configs) {
 		font : {
 			fontSize : 13
 		},
-		height : 'auto',
+		height : Ti.UI.SIZE,
 		top : 10,
-        bottom : 10
+        bottom : 20
 	});
 
     if(Titanium.Platform.name == 'android') {
@@ -124,12 +125,12 @@ var getSpamStats = function(commentNode) {
 var createCommentNodeView = function(commentNode) {
 
 	var row = Ti.UI.createTableViewRow({
-		height : 'auto',
+		height : Ti.UI.SIZE,
 		data : commentNode.getId()
 	});
 
 	var textView = Ti.UI.createView({
-		height : 'auto',
+		height : Ti.UI.SIZE,
 		layout : 'vertical',
 		left : 10,
 		top : 10,
@@ -145,19 +146,20 @@ var createCommentNodeView = function(commentNode) {
 			x : 0,
 			y : 1
 		},
-		textAlign : 'left',
-		height : 'auto',
+		textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+		height : Ti.UI.SIZE,
 		top : 10,
 		font : {
 			fontWeight : 'bold',
 			fontSize : 16
-		}
+		},
+        left : 5
 	});
 
 	textView.add(titleLabel);
 
 	var starBarView = Ti.UI.createView({
-		height : 'auto',
+		height : Ti.UI.SIZE,
 		layout : 'horizontal',
 		left : 0,
 		top : 5,
@@ -180,7 +182,7 @@ var createCommentNodeView = function(commentNode) {
 		text : commentNode.getSystemMetadata().getModifiedBy() + ' @ ' + commentNode.getSystemMetadata().getModifiedOn().getTimestamp(),
 		color : '#000000',
 		shadowColor : '#FFFFE6',
-		textAlign : 'left',
+		textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
 		shadowOffset : {
 			x : 0,
 			y : 1
@@ -188,8 +190,9 @@ var createCommentNodeView = function(commentNode) {
 		font : {
 			fontSize : 13
 		},
-		height : 'auto',
-		top : 10
+		height : Ti.UI.SIZE,
+		top : 10,
+        left : 5
 	});
 	if(Titanium.Platform.name == 'android') {
 		userLabel.right = 30;
@@ -200,7 +203,7 @@ var createCommentNodeView = function(commentNode) {
 		text : commentNode.get('description'),
 		color : '#000000',
 		shadowColor : '#FFFFE6',
-		textAlign : 'left',
+		textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
 		shadowOffset : {
 			x : 0,
 			y : 1
@@ -208,8 +211,9 @@ var createCommentNodeView = function(commentNode) {
 		font : {
 			fontSize : 13
 		},
-		height : 'auto',
-		top : 10
+		height : Ti.UI.SIZE,
+		top : 10,
+        left : 5
 	});
 	if(Titanium.Platform.name == 'android') {
 		detailsLabel.right = 30;
@@ -220,7 +224,7 @@ var createCommentNodeView = function(commentNode) {
 		text : getHelpfulStats(commentNode),
 		color : '#000000',
 		shadowColor : '#FFFFE6',
-		textAlign : 'left',
+		textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
 		shadowOffset : {
 			x : 0,
 			y : 1
@@ -228,8 +232,9 @@ var createCommentNodeView = function(commentNode) {
 		font : {
 			fontSize : 13
 		},
-		height : 'auto',
-		top : 10
+		height : Ti.UI.SIZE,
+		top : 10,
+        left : 5
 	});
 
 	textView.add(helpfulLabel);
@@ -238,7 +243,7 @@ var createCommentNodeView = function(commentNode) {
 		text : getSpamStats(commentNode),
 		color : '#000000',
 		shadowColor : '#FFFFE6',
-		textAlign : 'left',
+		textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
 		shadowOffset : {
 			x : 0,
 			y : 1
@@ -246,8 +251,9 @@ var createCommentNodeView = function(commentNode) {
 		font : {
 			fontSize : 13
 		},
-		height : 'auto',
-		top : 10
+		height : Ti.UI.SIZE,
+		top : 10,
+        left : 5
 	});
 
 	textView.add(spamLabel);
@@ -305,13 +311,14 @@ var createCommentNodeView = function(commentNode) {
 var createNodeCommentsView = function(rows, thisNode) {
 
 	var reviewsRow = Ti.UI.createTableViewRow({
-		height : 'auto',
+		height : Ti.UI.SIZE,
 		header : ''
 	});
 
 	var reviewButton = Titanium.UI.createButton({
 		title : 'Leave Your Comment',
-		height : android ? 45 : 40
+		height : android ? 45 : 40,
+        width : '100%'
 	});
 
     var reviewButtonImageView = Ti.UI.createImageView({
@@ -323,12 +330,8 @@ var createNodeCommentsView = function(rows, thisNode) {
     reviewButton.add(reviewButtonImageView);
 
     var buttonView = Ti.UI.createView({
-		height : 'auto',
-		layout : 'vertical',
-		left : 10,
-		top : 10,
-		bottom : 10,
-		right : 10
+		height : Ti.UI.SIZE,
+		layout : 'vertical'
 	});
 
 	buttonView.add(reviewButton);
@@ -338,12 +341,12 @@ var createNodeCommentsView = function(rows, thisNode) {
 	rows.push(reviewsRow);
 
 	var statsRow = Ti.UI.createTableViewRow({
-		height : 'auto',
+		height : Ti.UI.SIZE,
 		header : 'Comments'
 	});
 
 	var statsView = Ti.UI.createView({
-		height : 'auto',
+		height : Ti.UI.SIZE,
 		layout : 'vertical',
 		left : 10,
 		top : 10,
@@ -372,7 +375,7 @@ var createNodeCommentsView = function(rows, thisNode) {
 	var statsLabel = Ti.UI.createLabel({
 		text : statsText,
 		width : 'auto',
-		height : 'auto',
+		height : Ti.UI.SIZE,
 		color : '#000000',
 		shadowColor : '#FFFFE6',
 		shadowOffset : {
@@ -401,7 +404,7 @@ var createNodeCommentsView = function(rows, thisNode) {
 		var reviewFormRows = [];
 
 		var reviewTitleRow = Ti.UI.createTableViewRow({
-			height : 'auto',
+			height : Ti.UI.SIZE,
 			header : 'Title'
 		});
 
@@ -409,19 +412,21 @@ var createNodeCommentsView = function(rows, thisNode) {
 			autocapitalization : Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE,
 			height : android ? 45 : 35,
 			borderStyle : Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
+            width : '100%',
 			hintText : 'Title'
 		});
 		reviewTitleRow.add(reviewTitleField);
 		reviewFormRows.push(reviewTitleRow);
 
 		var reviewDescriptionRow = Ti.UI.createTableViewRow({
-			height : 'auto',
+			height : Ti.UI.SIZE,
 			header : 'Your Comment'
 		});
 
 		var reviewDescriptionField = Titanium.UI.createTextArea({
 			height : 140,
-			textAlign : 'left',
+            width : '100%',
+			textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
 			borderWidth : 1,
 			borderColor : '#bbb',
 			borderRadius : 5,
@@ -433,13 +438,14 @@ var createNodeCommentsView = function(rows, thisNode) {
 		reviewFormRows.push(reviewDescriptionRow);
 
 		var rateButtonRow = Ti.UI.createTableViewRow({
-			height : 'auto',
+			height : Ti.UI.SIZE,
 			header : 'Rating'
 		});
 
 		var rateButton = Titanium.UI.createButton({
 			title : 'Rate This Item',
-			height : android ? 45 : 40
+			height : android ? 45 : 40,
+            width : '100%'
 		});
 		rateButtonRow.add(rateButton);
 		reviewFormRows.push(rateButtonRow);
@@ -457,10 +463,12 @@ var createNodeCommentsView = function(rows, thisNode) {
 			'Good' : 4,
 			'Excellent' : 5
 		};
-		rateButton.addEventListener('click', function() {
+
+        var onRateButtonClick = function() {
 			var ratingWin = Titanium.UI.createWindow({
 				title : 'Rate Item',
-				backgroundColor : '#ffffff'
+				backgroundColor : '#ffffff',
+                width : '100%'
 			});
 
 			var reviewRatingField = Titanium.UI.createPicker({
@@ -500,17 +508,21 @@ var createNodeCommentsView = function(rows, thisNode) {
 					rateButton.title = e.row.title;
 					ratingWin.close();
 				}
+                //rateButton.addEventListener('click', onRateButtonClick);
+                //createButton.addEventListener('click', onCreateButtonClick);
 			});
+		};
 
-		});
+		rateButton.addEventListener('click', onRateButtonClick);
 
 		var reviewButtonsRow = Ti.UI.createTableViewRow({
-			height : 'auto',
+			height : Ti.UI.SIZE,
 			header : 'Actions'
 		});
-		var createButton = Titanium.UI.createButton({
+		var reviewCreateButton = Titanium.UI.createButton({
 			title : 'Post Your Comment',
-			height : android ? 45 : 40
+			height : android ? 45 : 40,
+            width : '100%'
 		});
         var createButtonImageView = Ti.UI.createImageView({
             image:'../images/icons/comment-save.png',
@@ -518,15 +530,15 @@ var createNodeCommentsView = function(rows, thisNode) {
             height:33,
             width:33
         });
-        createButton.add(createButtonImageView);
-        reviewButtonsRow.add(createButton);
+        reviewCreateButton.add(createButtonImageView);
 
-		reviewFormRows.push(reviewButtonsRow);
+		var onCreateButtonClick = function(e) {
+			Ti.API.info("Real Button clicked" + e.source.toString());
 
-		createButton.addEventListener('click', function() {
-			var reviewTitle = reviewTitleField.value;
+            var reviewTitle = reviewTitleField.value;
 			var reviewDescription = reviewDescriptionField.value;
 			var rating = ratingMapping[rateButton.title];
+
 			if(reviewTitle && reviewDescription && rating) {
 				// Do the actual work
 				var reviewVal = {
@@ -548,7 +560,13 @@ var createNodeCommentsView = function(rows, thisNode) {
 					});
 				});
 			}
-		});
+		}
+
+        //reviewCreateButton.addEventListener('click', onCreateButtonClick);
+
+        reviewButtonsRow.add(reviewCreateButton);
+
+		reviewFormRows.push(reviewButtonsRow);
 
 		var reviewFormView = Ti.UI.createTableView({
 			data : reviewFormRows,
@@ -556,7 +574,19 @@ var createNodeCommentsView = function(rows, thisNode) {
 			backgroundColor : 'transparent'
 		});
 
-		newReviewWin.add(reviewFormView);
+        reviewFormView.addEventListener('click', function(e) {
+			Ti.API.info(e.source.toString());
+            var clickedButton = e.source;
+            if (clickedButton.toString() == '[object TiUIButton]') {
+                var buttonTitle = clickedButton.title;
+                Ti.API.info(buttonTitle);
+                if (buttonTitle == 'Post Your Comment') {
+                    onCreateButtonClick(e);
+                }
+            }
+        });
+
+        newReviewWin.add(reviewFormView);
 
 		Titanium.UI.currentTab.open(newReviewWin, {
 			animated : true
@@ -604,7 +634,7 @@ var createNodeCommonView = function(rows, node) {
 	});
 
 	var imageRow = Ti.UI.createTableViewRow({
-		height : 'auto',
+		height : Ti.UI.SIZE,
 		header : ''
 	});
 
@@ -625,7 +655,7 @@ var createNodeBodyView = function(rows, node) {
     
 	if(bodyDetails) {
 		bodyDetailsRow = Ti.UI.createTableViewRow({
-			height : 'auto',
+			height : Ti.UI.SIZE,
 			layout : 'vertical',
 			width : defaultWidth,
 			header : '',
@@ -638,7 +668,7 @@ var createNodeBodyView = function(rows, node) {
             text : node.get('teaser'),
             color : '#000000',
             shadowColor : '#FFFFE6',
-            textAlign : 'left',
+            textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
             shadowOffset : {
                 x : 0,
                 y : 1
@@ -646,16 +676,16 @@ var createNodeBodyView = function(rows, node) {
             font : {
                 fontSize : 13
             },
-            height : 'auto',
+            height : Ti.UI.SIZE,
             width : defaultWidth,
             top : 5,
             left : 10,
-            bottom : 5,
+            //bottom : 5,
             right : 5
         });
 
         bodyDetailsRow.add(descLabel);
-        height += descLabel.size.height + 10;
+        //height += descLabel.size.height + 10;
 
 		for(var index = 0; index < bodyDetails.length; index++) {
 			var item = bodyDetails[index];
@@ -669,8 +699,8 @@ var createNodeBodyView = function(rows, node) {
 						x : 0,
 						y : 1
 					},
-					textAlign : 'left',
-					height : 'auto',
+					textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+					height : Ti.UI.SIZE,
 					width : defaultWidth,
 					top : 5,
 					left : 10,
@@ -681,7 +711,7 @@ var createNodeBodyView = function(rows, node) {
 				});
 
 				bodyDetailsRow.add(subTitleLabel);
-				height += subTitleLabel.size.height + 10;
+				//height += subTitleLabel.size.height + 10;
 			}
 
 			if(item.page) {
@@ -689,7 +719,7 @@ var createNodeBodyView = function(rows, node) {
 					text : item.page,
 					color : '#000000',
 					shadowColor : '#FFFFE6',
-					textAlign : 'left',
+					textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
 					shadowOffset : {
 						x : 0,
 						y : 1
@@ -697,20 +727,22 @@ var createNodeBodyView = function(rows, node) {
 					font : {
 						fontSize : 13
 					},
-					height : 'auto',
+					top : 5,
+                    left : 10/*,
+					height : Ti.UI.SIZE,
 					width : defaultWidth,
 					top : 5,
 					left : 10,
 					bottom : 5,
-					right : 5
+					right : 5*/
 				});
 
 				bodyDetailsRow.add(pageLabel);
-				height += pageLabel.size.height + 10;
+				//height += pageLabel.size.height + 10;
 
 			}
 		}
-		bodyDetailsRow.height = height;
+		//bodyDetailsRow.height = height;
 		rows.push(bodyDetailsRow);
 	}
 	return bodyDetailsRow;
@@ -866,7 +898,7 @@ var createFooter = function(win) {
         text : "Updated " + getCurrentDateTime(),
         color : '#ffffff',
         textAlign : 'center',
-        height : 'auto',
+        height : Ti.UI.SIZE,
         top : 10,
         font : {
             fontWeight : 'bold',

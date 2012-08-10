@@ -1598,6 +1598,126 @@ if (!this.JSON) {
     // if so, we plug in the url we're going to auto-configure for
     Gitana.autoConfigUri = false;
 
+    // temporary location for this code
+    Gitana.toCopyDependencyChain = function(typedID)
+    {
+        var array = [];
+
+        if (typedID.getType() == "node")
+        {
+            array = array.concat(Gitana.toCopyDependencyChain(typedID.getBranch()));
+        }
+        else if (typedID.getType() == "branch")
+        {
+            array = array.concat(Gitana.toCopyDependencyChain(typedID.getRepository()));
+        }
+        else if (typedID.getType() == "platform")
+        {
+            // nothing to do here
+        }
+        else
+        {
+            array = array.concat(Gitana.toCopyDependencyChain(typedID.getPlatform()));
+        }
+
+        array.push(Gitana.toDependencyObject(typedID));
+
+        return array;
+    };
+
+    Gitana.toDependencyObject = function(typedID)
+    {
+        return {
+            "typeId": typedID.getType(),
+            "id": typedID.getId()
+        };
+    };
+
+    Gitana.TypedIDConstants = {};
+    Gitana.TypedIDConstants.TYPE_APPLICATION = "application";
+    Gitana.TypedIDConstants.TYPE_EMAIL = "email";
+    Gitana.TypedIDConstants.TYPE_EMAIL_PROVIDER = "emailprovider";
+    Gitana.TypedIDConstants.TYPE_REGISTRATION = "registration";
+    Gitana.TypedIDConstants.TYPE_SETTINGS = "settings";
+
+    // cluster
+    Gitana.TypedIDConstants.TYPE_CLUSTER = "cluster";
+    Gitana.TypedIDConstants.TYPE_JOB = "job";
+    Gitana.TypedIDConstants.TYPE_LOG_ENTRY = "logEntry";
+
+    // directory
+    Gitana.TypedIDConstants.TYPE_DIRECTORY = "directory";
+    Gitana.TypedIDConstants.TYPE_IDENTITY = "identity";
+
+    // domain
+    Gitana.TypedIDConstants.TYPE_DOMAIN = "domain";
+    Gitana.TypedIDConstants.TYPE_DOMAIN_GROUP = "group";
+    Gitana.TypedIDConstants.TYPE_DOMAIN_USER = "user";
+
+    // platform
+    Gitana.TypedIDConstants.TYPE_PLATFORM = "platform";
+    Gitana.TypedIDConstants.TYPE_AUTHENTICATION_GRANT = "authenticationGrant";
+    Gitana.TypedIDConstants.TYPE_BILLING_PROVIDER_CONFIGURATION = "billingProviderConfiguration";
+    Gitana.TypedIDConstants.TYPE_CLIENT = "client";
+    Gitana.TypedIDConstants.TYPE_STACK = "stack";
+
+    // registrar
+    Gitana.TypedIDConstants.TYPE_REGISTRAR = "registrar";
+    Gitana.TypedIDConstants.TYPE_METER = "meter";
+    Gitana.TypedIDConstants.TYPE_PLAN = "plan";
+    Gitana.TypedIDConstants.TYPE_TENANT = "tenant";
+
+    // repository
+    Gitana.TypedIDConstants.TYPE_REPOSITORY = "repository";
+    Gitana.TypedIDConstants.TYPE_ASSOCIATION = "association";
+    Gitana.TypedIDConstants.TYPE_BRANCH = "branch";
+    Gitana.TypedIDConstants.TYPE_CHANGESET = "changeset";
+    Gitana.TypedIDConstants.TYPE_NODE = "node";
+
+    // vault
+    Gitana.TypedIDConstants.TYPE_VAULT = "vault";
+    Gitana.TypedIDConstants.TYPE_ARCHIVE = "archive";
+
+    // warehouse
+    Gitana.TypedIDConstants.TYPE_WAREHOUSE = "warehouse";
+    Gitana.TypedIDConstants.TYPE_INTERACTION = "interaction";
+    Gitana.TypedIDConstants.TYPE_INTERACTION_APPLICATION = "interactionApplication";
+    Gitana.TypedIDConstants.TYPE_INTERACTION_NODE = "interactionNode";
+    Gitana.TypedIDConstants.TYPE_INTERACTION_PAGE = "interactionPage";
+    Gitana.TypedIDConstants.TYPE_INTERACTION_REPORT = "interactionReport";
+    Gitana.TypedIDConstants.TYPE_INTERACTION_REPORT_ENTRY = "interactionReportEntry";
+    Gitana.TypedIDConstants.TYPE_INTERACTION_SESSION = "interactionSession";
+    Gitana.TypedIDConstants.TYPE_INTERACTION_USER = "interactionUser";
+
+    // web host
+    Gitana.TypedIDConstants.TYPE_WEB_HOST = "webhost";
+    Gitana.TypedIDConstants.TYPE_AUTO_CLIENT_MAPPING = "autoClientMapping";
+
+
+    Gitana.handleJobCompletion = function(chain, cluster, jobId, synchronous)
+    {
+        var jobFinalizer = function() {
+
+            return Chain(cluster).readJob(jobId).then(function() {
+
+                if (!synchronous || (synchronous && (this.getState() == "FINISHED" || this.getState() == "ERROR")))
+                {
+                    chain.loadFrom(this);
+                    chain.next();
+                }
+                else
+                {
+                    // reset timeout
+                    window.setTimeout(jobFinalizer, 250);
+                }
+
+            });
+        };
+
+        // set timeout
+        window.setTimeout(jobFinalizer, 250);
+    };
+
     window.Gitana = Gitana;
 
 })(window);(function(global) {
@@ -4301,7 +4421,39 @@ Gitana.OAuth2Http.COOKIE = "cookie";
 
         job: function(cluster, object)
         {
-            return this.create(Gitana.Job, cluster, object);
+            var type = null;
+
+            if (object)
+            {
+                if (Gitana.isString(object))
+                {
+                    type = object;
+                }
+                else
+                {
+                    type = object["type"];
+                }
+            }
+
+            var job = null;
+            if ("copy" == type)
+            {
+                job = this.create(Gitana.CopyJob, cluster, object);
+            }
+            else if ("export" == type)
+            {
+                job = this.create(Gitana.TransferExportJob, cluster, object);
+            }
+            else if ("import" == type)
+            {
+                job = this.create(Gitana.TransferImportJob, cluster, object);
+            }
+            else
+            {
+                job = this.create(Gitana.Job, cluster, object);
+            }
+
+            return job;
         },
 
         jobMap: function(cluster, object)
@@ -5492,6 +5644,16 @@ Gitana.OAuth2Http.COOKIE = "cookie";
         },
 
         /**
+         * @ABSTRACT
+         *
+         * To be implemented by object implementations.
+         */
+        getType: function()
+        {
+            return null;
+        },
+
+        /**
          * Hands back the URI of this object as referenced by the browser.
          */
         getProxiedUri: function()
@@ -6485,10 +6647,10 @@ Gitana.OAuth2Http.COOKIE = "cookie";
             var artifactId = settings.artifact;
             var versionId = settings.version;
             var configuration = (settings.configuration ? settings.configuration : {});
-            var schedule = (settings.async ? "ASYNCHRONOUS" : "SYNCHRONOUS");
+            var synchronous = (settings.async ? false : true);
 
             // we continue the chain with a job
-            var chainable = this.getFactory().job(this.getCluster());
+            var chainable = this.getFactory().job(this.getCluster(), "export");
 
             // fire off import and job queue checking
             return this.link(chainable).then(function() {
@@ -6496,22 +6658,9 @@ Gitana.OAuth2Http.COOKIE = "cookie";
                 var chain = this;
 
                 // create
-                this.getDriver().gitanaPost(self.getUri() + "/export?vault=" + vaultId + "&group=" + groupId + "&artifact=" + artifactId + "&version=" + versionId + "&schedule=" + schedule, {}, configuration, function(response) {
+                this.getDriver().gitanaPost(self.getUri() + "/export?vault=" + vaultId + "&group=" + groupId + "&artifact=" + artifactId + "&version=" + versionId + "&schedule=ASYNCHRONOUS", {}, configuration, function(response) {
 
-                    // put in a 500ms delay to wait on reading the job back
-                    var jobId = response.getId();
-                    var jobFinalizer = function() {
-
-                        return Chain(self.getCluster()).readJob(jobId).then(function() {
-
-                            // success, continue the chain
-                            chain.loadFrom(this);
-                            chain.next();
-                        });
-                    };
-
-                    // reset timeout
-                    window.setTimeout(jobFinalizer, 500);
+                    Gitana.handleJobCompletion(chain, self.getCluster(), response.getId(), synchronous);
 
                 }, function(http) {
                     self.httpError(http);
@@ -6542,10 +6691,10 @@ Gitana.OAuth2Http.COOKIE = "cookie";
             var artifactId = settings.artifact;
             var versionId = settings.version;
             var configuration = (settings.configuration ? settings.configuration : {});
-            var schedule = (settings.async ? "ASYNCHRONOUS" : "SYNCHRONOUS");
+            var synchronous = (settings.async ? false : true);
 
             // we continue the chain with a job
-            var chainable = this.getFactory().job(this.getCluster());
+            var chainable = this.getFactory().job(this.getCluster(), "import");
 
             // fire off import and job queue checking
             return this.link(chainable).then(function() {
@@ -6553,22 +6702,9 @@ Gitana.OAuth2Http.COOKIE = "cookie";
                 var chain = this;
 
                 // create
-                this.getDriver().gitanaPost(self.getUri() + "/import?vault=" + vaultId + "&group=" + groupId + "&artifact=" + artifactId + "&version=" + versionId + "&schedule=" + schedule, {}, configuration, function(response) {
+                this.getDriver().gitanaPost(self.getUri() + "/import?vault=" + vaultId + "&group=" + groupId + "&artifact=" + artifactId + "&version=" + versionId + "&schedule=ASYNCHRONOUS", {}, configuration, function(response) {
 
-                    // put in a 500ms delay to wait on reading the job back
-                    var jobId = response.getId();
-                    var jobFinalizer = function() {
-
-                        return Chain(self.getCluster()).readJob(jobId).then(function() {
-
-                            // success, continue the chain
-                            chain.loadFrom(this);
-                            chain.next();
-                        });
-                    };
-
-                    // reset timeout
-                    window.setTimeout(jobFinalizer, 500);
+                    Gitana.handleJobCompletion(chain, self.getCluster(), response.getId(), synchronous);
 
                 }, function(http) {
                     self.httpError(http);
@@ -7766,7 +7902,7 @@ Gitana.OAuth2Http.COOKIE = "cookie";
          */
         getType: function()
         {
-            return "cluster";
+            return Gitana.TypedIDConstants.TYPE_CLUSTER;
         },
 
         /**
@@ -7775,6 +7911,25 @@ Gitana.OAuth2Http.COOKIE = "cookie";
         clone: function()
         {
             return new Gitana.Cluster(this.getDriver(), this.object);
+        },
+
+        /**
+         * Loads the contained types for a type as a string array and passes it into a callback function.
+         *
+         * @param type
+         * @param callback
+         * @return this
+         */
+        loadContainedTypes: function(type, callback)
+        {
+            var uriFunction = function()
+            {
+                return "/tools/types/contained/" + type;
+            };
+
+            return this.chainPostResponse(this, uriFunction).then(function() {
+                callback.call(this, this.response["types"]);
+            });
         },
 
 
@@ -8185,6 +8340,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
         },
 
         /**
+         * @OVERRIDE
+         */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_LOG_ENTRY;
+        },
+
+        /**
          * @returns {String} the id of the principal that logged this entry
          */
         getPrincipalId: function()
@@ -8340,6 +8503,223 @@ Gitana.OAuth2Http.COOKIE = "cookie";
 {
     var Gitana = window.Gitana;
     
+    Gitana.CopyJob = Gitana.Job.extend(
+    /** @lends Gitana.CopyJob.prototype */
+    {
+        /**
+         * @constructs
+         * @augments Gitana.AbstractObject
+         *
+         * @class CopyJob
+         *
+         * @param {Gitana.Cluster} cluster
+         * @param [Object] object json object (if no callback required for populating)
+         */
+        constructor: function(cluster, object)
+        {
+            this.base(cluster, object);
+
+            this.objectType = "Gitana.CopyJob";
+        },
+
+        getImports: function()
+        {
+            var importObjects = [];
+
+            var array = this.get("imports");
+            for (var i = 0; i < array.length; i++)
+            {
+                var object = array[i];
+
+                var sources = object["sources"];
+                var targets = object["targest"];
+
+                var importObject = {
+                    "sources": object["sources"],
+                    "targets": object["targets"],
+                    getType: function()
+                    {
+                        return this.targets[this.targets.length - 1]["typeId"];
+                    },
+                    getSourceId: function()
+                    {
+                        return this.sources[this.sources.length - 1]["id"];
+                    },
+                    getTargetId: function()
+                    {
+                        return this.targets[this.targets.length - 1]["id"];
+                    }
+                };
+                importObjects.push(importObject);
+            }
+
+            return importObjects;
+        },
+
+        getSingleImportTargetId: function()
+        {
+            var targetId = null;
+
+            var importObjects = this.getImports();
+            if (importObjects.length > 0)
+            {
+                targetId = importObjects[0].getTargetId();
+            }
+
+            return targetId;
+        }
+
+    });
+
+})(window);
+(function(window)
+{
+    var Gitana = window.Gitana;
+    
+    Gitana.TransferImportJob = Gitana.Job.extend(
+    /** @lends Gitana.TransferImportJob.prototype */
+    {
+        /**
+         * @constructs
+         * @augments Gitana.AbstractObject
+         *
+         * @class TransferImportJob
+         *
+         * @param {Gitana.Cluster} cluster
+         * @param [Object] object json object (if no callback required for populating)
+         */
+        constructor: function(cluster, object)
+        {
+            this.base(cluster, object);
+
+            this.objectType = "Gitana.TransferImportJob";
+        },
+
+        getImports: function()
+        {
+            var importObjects = [];
+
+            var array = this.get("imports");
+            for (var i = 0; i < array.length; i++)
+            {
+                var object = array[i];
+
+                var sources = object["sources"];
+                var targets = object["targest"];
+
+                var importObject = {
+                    "sources": object["sources"],
+                    "targets": object["targets"],
+                    getType: function()
+                    {
+                        return this.targets[this.targets.length - 1]["typeId"];
+                    },
+                    getSourceId: function()
+                    {
+                        return this.sources[this.sources.length - 1]["id"];
+                    },
+                    getTargetId: function()
+                    {
+                        return this.targets[this.targets.length - 1]["id"];
+                    }
+                };
+                importObjects.push(importObject);
+            }
+
+            return importObjects;
+        },
+
+        getSingleImportTargetId: function()
+        {
+            var targetId = null;
+
+            var importObjects = this.getImports();
+            if (importObjects.length > 0)
+            {
+                targetId = importObjects[0].getTargetId();
+            }
+
+            return targetId;
+        }
+    });
+
+})(window);
+(function(window)
+{
+    var Gitana = window.Gitana;
+    
+    Gitana.TransferExportJob = Gitana.Job.extend(
+    /** @lends Gitana.TransferExportJob.prototype */
+    {
+        /**
+         * @constructs
+         * @augments Gitana.AbstractObject
+         *
+         * @class TransferExportJob
+         *
+         * @param {Gitana.Cluster} cluster
+         * @param [Object] object json object (if no callback required for populating)
+         */
+        constructor: function(cluster, object)
+        {
+            this.base(cluster, object);
+
+            this.objectType = "Gitana.TransferExportJob";
+        },
+
+        getImports: function()
+        {
+            var importObjects = [];
+
+            var array = this.get("imports");
+            for (var i = 0; i < array.length; i++)
+            {
+                var object = array[i];
+
+                var sources = object["sources"];
+                var targets = object["targest"];
+
+                var importObject = {
+                    "sources": object["sources"],
+                    "targets": object["targets"],
+                    getType: function()
+                    {
+                        return this.targets[this.targets.length - 1]["typeId"];
+                    },
+                    getSourceId: function()
+                    {
+                        return this.sources[this.sources.length - 1]["id"];
+                    },
+                    getTargetId: function()
+                    {
+                        return this.targets[this.targets.length - 1]["id"];
+                    }
+                };
+                importObjects.push(importObject);
+            }
+
+            return importObjects;
+        },
+
+        getSingleImportTargetId: function()
+        {
+            var targetId = null;
+
+            var importObjects = this.getImports();
+            if (importObjects.length > 0)
+            {
+                targetId = importObjects[0].getTargetId();
+            }
+
+            return targetId;
+        }
+    });
+
+})(window);
+(function(window)
+{
+    var Gitana = window.Gitana;
+    
     Gitana.Platform = Gitana.ContainedDataStore.extend(
     /** @lends Gitana.Platform.prototype */
     {
@@ -8408,7 +8788,7 @@ Gitana.OAuth2Http.COOKIE = "cookie";
          */
         getType: function()
         {
-            return "platform";
+            return Gitana.TypedIDConstants.TYPE_PLATFORM;
         },
 
         /**
@@ -10189,6 +10569,53 @@ Gitana.OAuth2Http.COOKIE = "cookie";
                 return platform.getClusterId();
             };
 
+        },
+
+
+
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        //
+        // COPY
+        //
+        //////////////////////////////////////////////////////////////////////////////////////////////
+
+        /**
+         * Copies this object into the target.
+         *
+         * @chained job
+         *
+         * @param target
+         * @param asynchronous
+         */
+        copy: function(target, asynchronous)
+        {
+            var self = this;
+
+            var payload = {
+                "sources": Gitana.toCopyDependencyChain(this),
+                "targets": Gitana.toCopyDependencyChain(target)
+            };
+
+            // we continue the chain with a job
+            var chainable = this.getFactory().job(this.getCluster(), "copy");
+
+            // fire off copy and job queue checking
+            return this.link(chainable).then(function() {
+
+                var chain = this;
+
+                // create
+                this.getDriver().gitanaPost("/tools/copy?schedule=ASYNCHRONOUS", {}, payload, function(response) {
+
+                    Gitana.handleJobCompletion(chain, self.getCluster(), response.getId(), !asynchronous);
+
+                }, function(http) {
+                    self.httpError(http);
+                });
+
+                // NOTE: we return false to tell the chain that we'll manually call next()
+                return false;
+            });
         }
 
     });
@@ -10270,10 +10697,10 @@ Gitana.OAuth2Http.COOKIE = "cookie";
             var artifactId = settings.artifact;
             var versionId = settings.version;
             var configuration = (settings.configuration ? settings.configuration : {});
-            var schedule = (settings.async ? "ASYNCHRONOUS" : "SYNCHRONOUS");
+            var synchronous = (settings.async ? false : true);
 
             // we continue the chain with a job
-            var chainable = this.getFactory().job(this.getCluster());
+            var chainable = this.getFactory().job(this.getCluster(), "export");
 
             // fire off import and job queue checking
             return this.link(chainable).then(function() {
@@ -10281,22 +10708,9 @@ Gitana.OAuth2Http.COOKIE = "cookie";
                 var chain = this;
 
                 // create
-                this.getDriver().gitanaPost(self.getUri() + "/export?vault=" + vaultId + "&group=" + groupId + "&artifact=" + artifactId + "&version=" + versionId + "&schedule=" + schedule, {}, configuration, function(response) {
+                this.getDriver().gitanaPost(self.getUri() + "/export?vault=" + vaultId + "&group=" + groupId + "&artifact=" + artifactId + "&version=" + versionId + "&schedule=ASYNCHRONOUS", {}, configuration, function(response) {
 
-                    // put in a 500ms delay to wait on reading the job back
-                    var jobId = response.getId();
-                    var jobFinalizer = function() {
-
-                        return Chain(self.getCluster()).readJob(jobId).then(function() {
-
-                            // success, continue the chain
-                            chain.loadFrom(this);
-                            chain.next();
-                        });
-                    };
-
-                    // reset timeout
-                    window.setTimeout(jobFinalizer, 500);
+                    Gitana.handleJobCompletion(chain, self.getCluster(), response.getId(), synchronous);
 
                 }, function(http) {
                     self.httpError(http);
@@ -10327,10 +10741,10 @@ Gitana.OAuth2Http.COOKIE = "cookie";
             var artifactId = settings.artifact;
             var versionId = settings.version;
             var configuration = (settings.configuration ? settings.configuration : {});
-            var schedule = (settings.async ? "ASYNCHRONOUS" : "SYNCHRONOUS");
+            var synchronous = (settings.async ? false : true);
 
             // we continue the chain with a job
-            var chainable = this.getFactory().job(this.getCluster());
+            var chainable = this.getFactory().job(this.getCluster(), "import");
 
             // fire off import and job queue checking
             return this.link(chainable).then(function() {
@@ -10338,22 +10752,9 @@ Gitana.OAuth2Http.COOKIE = "cookie";
                 var chain = this;
 
                 // create
-                this.getDriver().gitanaPost(self.getUri() + "/import?vault=" + vaultId + "&group=" + groupId + "&artifact=" + artifactId + "&version=" + versionId + "&schedule=" + schedule, {}, configuration, function(response) {
+                this.getDriver().gitanaPost(self.getUri() + "/import?vault=" + vaultId + "&group=" + groupId + "&artifact=" + artifactId + "&version=" + versionId + "&schedule=ASYNCHRONOUS", {}, configuration, function(response) {
 
-                    // put in a 500ms delay to wait on reading the job back
-                    var jobId = response.getId();
-                    var jobFinalizer = function() {
-
-                        return Chain(self.getCluster()).readJob(jobId).then(function() {
-
-                            // success, continue the chain
-                            chain.loadFrom(this);
-                            chain.next();
-                        });
-                    };
-
-                    // reset timeout
-                    window.setTimeout(jobFinalizer, 500);
+                    Gitana.handleJobCompletion(chain, self.getCluster(), response.getId(), synchronous);
 
                 }, function(http) {
                     self.httpError(http);
@@ -10363,7 +10764,54 @@ Gitana.OAuth2Http.COOKIE = "cookie";
                 return false;
             });
 
+        },
+
+
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        //
+        // COPY
+        //
+        //////////////////////////////////////////////////////////////////////////////////////////////
+
+        /**
+         * Copies this object into the target.
+         *
+         * @chained job
+         *
+         * @param target
+         * @param asynchronous
+         */
+        copy: function(target, asynchronous)
+        {
+            var self = this;
+
+            var payload = {
+                "sources": Gitana.toCopyDependencyChain(this),
+                "targets": Gitana.toCopyDependencyChain(target)
+            };
+
+            // we continue the chain with a job
+            var chainable = this.getFactory().job(this.getCluster(), "copy");
+
+            // fire off copy and job queue checking
+            return this.link(chainable).then(function() {
+
+                var chain = this;
+
+                // create
+                this.getDriver().gitanaPost("/tools/copy?schedule=ASYNCHRONOUS", {}, payload, function(response) {
+
+                    Gitana.handleJobCompletion(chain, self.getCluster(), response.getId(), !asynchronous);
+
+                }, function(http) {
+                    self.httpError(http);
+                });
+
+                // NOTE: we return false to tell the chain that we'll manually call next()
+                return false;
+            });
         }
+
 
     });
 
@@ -10440,6 +10888,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
             this.base(platform, object);
 
             this.objectType = "Gitana.Stack";
+        },
+
+        /**
+         * @OVERRIDE
+         */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_STACK;
         },
 
         /**
@@ -10986,6 +11442,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
         /**
          * @OVERRIDE
          */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_CLIENT;
+        },
+
+        /**
+         * @OVERRIDE
+         */
         getUri: function()
         {
             return "/clients/" + this.getId();
@@ -11103,6 +11567,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
             this.base(platform, object);
 
             this.objectType = "Gitana.AuthenticationGrant";
+        },
+
+        /**
+         * @OVERRIDE
+         */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_AUTHENTICATION_GRANT;
         },
 
         /**
@@ -11292,6 +11764,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
         /**
          * @OVERRIDE
          */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_BILLING_PROVIDER_CONFIGURATION;
+        },
+
+        /**
+         * @OVERRIDE
+         */
         getUri: function()
         {
             return "/billing/configurations/" + this.getId();
@@ -11456,7 +11936,7 @@ Gitana.OAuth2Http.COOKIE = "cookie";
          */
         getType: function()
         {
-            return "application";
+            return Gitana.TypedIDConstants.TYPE_APPLICATION;
         },
 
         /**
@@ -12200,6 +12680,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
         /**
          * @OVERRIDE
          */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_SETTINGS;
+        },
+
+        /**
+         * @OVERRIDE
+         */
         getUri: function()
         {
             return "/applications/" + this.getApplicationId() + "/settings/" + this.getId();
@@ -12514,6 +13002,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
         /**
          * @OVERRIDE
          */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_EMAIL;
+        },
+
+        /**
+         * @OVERRIDE
+         */
         getUri: function()
         {
             return "/applications/" + this.getApplicationId() + "/emails/" + this.getId();
@@ -12657,6 +13153,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
              * @returns {String} The Gitana Application id
              */
             this.getApplicationId = function() { return application.getId(); };
+        },
+
+        /**
+         * @OVERRIDE
+         */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_EMAIL_PROVIDER;
         },
 
         /**
@@ -12810,6 +13314,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
              * @returns {String} The Gitana Application id
              */
             this.getApplicationId = function() { return application.getId(); };
+        },
+
+        /**
+         * @OVERRIDE
+         */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_REGISTRATION;
         },
 
         /**
@@ -12977,7 +13489,7 @@ Gitana.OAuth2Http.COOKIE = "cookie";
          */
         getType: function()
         {
-            return "warehouse";
+            return Gitana.TypedIDConstants.TYPE_WAREHOUSE;
         },
 
         /**
@@ -13707,6 +14219,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
         /**
          * @OVERRIDE
          */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_INTERACTION;
+        },
+
+        /**
+         * @OVERRIDE
+         */
         getUri: function()
         {
             return "/warehouses/" + this.getWarehouseId() + "/interactions/" + this.getId();
@@ -13934,6 +14454,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
         /**
          * @OVERRIDE
          */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_INTERACTION_APPLICATION;
+        },
+
+        /**
+         * @OVERRIDE
+         */
         getUri: function()
         {
             return "/warehouses/" + this.getWarehouseId() + "/applications/" + this.getId();
@@ -14129,6 +14657,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
         /**
          * @OVERRIDE
          */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_INTERACTION_SESSION;
+        },
+
+        /**
+         * @OVERRIDE
+         */
         getUri: function()
         {
             return "/warehouses/" + this.getWarehouseId() + "/sessions/" + this.getId();
@@ -14263,6 +14799,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
 
             this.objectType = "Gitana.InteractionPage";
             this.interactionObjectTypeId = "page";
+        },
+
+        /**
+         * @OVERRIDE
+         */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_INTERACTION_PAGE;
         },
 
         /**
@@ -14548,6 +15092,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
 
             this.objectType = "Gitana.InteractionNode";
             this.interactionObjectTypeId = "node";
+        },
+
+        /**
+         * @OVERRIDE
+         */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_INTERACTION_NODE;
         },
 
         /**
@@ -14846,6 +15398,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
         /**
          * @OVERRIDE
          */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_INTERACTION_SESSION;
+        },
+
+        /**
+         * @OVERRIDE
+         */
         getUri: function()
         {
             return "/warehouses/" + this.getWarehouseId() + "/users/" + this.getId();
@@ -14969,6 +15529,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
             this.base(warehouse, object);
 
             this.objectType = "Gitana.InteractionReport";
+        },
+
+        /**
+         * @OVERRIDE
+         */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_INTERACTION_REPORT;
         },
 
         /**
@@ -15134,6 +15702,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
             this.base(warehouse, object);
 
             this.objectType = "Gitana.InteractionReportEntry";
+        },
+
+        /**
+         * @OVERRIDE
+         */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_INTERACTION_REPORT_ENTRY;
         },
 
         /**
@@ -15357,7 +15933,7 @@ Gitana.OAuth2Http.COOKIE = "cookie";
          */
         getType: function()
         {
-            return "directory";
+            return Gitana.TypedIDConstants.TYPE_DIRECTORY;
         },
 
         /**
@@ -15487,6 +16063,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
             {
                 return directory.getId();
             };
+        },
+
+        /**
+         * @OVERRIDE
+         */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_IDENTITY;
         },
 
         /**
@@ -15738,7 +16322,7 @@ Gitana.OAuth2Http.COOKIE = "cookie";
          */
         getType: function()
         {
-            return "domain";
+            return Gitana.TypedIDConstants.TYPE_DOMAIN;
         },
 
         /**
@@ -16942,7 +17526,7 @@ Gitana.OAuth2Http.COOKIE = "cookie";
          */
         getType: function()
         {
-            return "registrar";
+            return Gitana.TypedIDConstants.TYPE_REGISTRAR;
         },
 
         /**
@@ -17382,6 +17966,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
         /**
          * @OVERRIDE
          */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_PLAN;
+        },
+
+        /**
+         * @OVERRIDE
+         */
         getUri: function()
         {
             return "/registrars/" + this.getRegistrarId() + "/plans/" + this.getId();
@@ -17441,7 +18033,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
             {
                 return registrar.getId();
             };
+        },
 
+        /**
+         * @OVERRIDE
+         */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_TENANT;
         },
 
         /**
@@ -17966,17 +18565,17 @@ Gitana.OAuth2Http.COOKIE = "cookie";
         /**
          * @OVERRIDE
          */
-        getUri: function()
+        getType: function()
         {
-            return "/repositories/" + this.getId();
+            return Gitana.TypedIDConstants.TYPE_REPOSITORY;
         },
 
         /**
          * @OVERRIDE
          */
-        getType: function()
+        getUri: function()
         {
-            return "repository";
+            return "/repositories/" + this.getId();
         },
 
         /**
@@ -18681,6 +19280,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
         },
 
         /**
+         * @OVERRIDE
+         */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_ASSOCIATION;
+        },
+
+        /**
          * @override
          */
         isAssociation: function()
@@ -19005,6 +19612,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
         /**
          * @OVERRIDE
          */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_BRANCH;
+        },
+
+        /**
+         * @OVERRIDE
+         */
         getUri: function()
         {
             return "/repositories/" + this.getRepositoryId() + "/branches/" + this.getId();
@@ -19033,13 +19648,13 @@ Gitana.OAuth2Http.COOKIE = "cookie";
          */
         isMaster: function()
         {
-            return (this.getType().toLowerCase() == "master");
+            return (this.getBranchType().toLowerCase() == "master");
         },
 
         /**
          * @return {String} the type of branch ("master" or "custom")
          */
-        getType: function()
+        getBranchType: function()
         {
             return this.get("type");
         },
@@ -19100,6 +19715,18 @@ Gitana.OAuth2Http.COOKIE = "cookie";
 
             var chainable = this.getFactory().node(this);
             return this.chainGet(chainable, uriFunction);
+        },
+
+        /**
+         * Reads the root node.
+         *
+         * @chained node
+         *
+         * @public
+         */
+        rootNode: function()
+        {
+            return this.readNode("root");
         },
 
         /**
@@ -19697,6 +20324,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
         /**
          * @OVERRIDE
          */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_CHANGESET;
+        },
+
+        /**
+         * @OVERRIDE
+         */
         getUri: function()
         {
             return "/repositories/" + this.getRepositoryId() + "/changesets/" + this.getId();
@@ -19758,6 +20393,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
             this.base(branch, object);
 
             this.objectType = "Gitana.Node";
+        },
+
+        /**
+         * @OVERRIDE
+         */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_NODE;
         },
 
         /**
@@ -21753,17 +22396,17 @@ Gitana.OAuth2Http.COOKIE = "cookie";
         /**
          * @OVERRIDE
          */
-        getUri: function()
+        getType: function()
         {
-            return "/vaults/" + this.getId();
+            return Gitana.TypedIDConstants.TYPE_VAULT;
         },
 
         /**
          * @OVERRIDE
          */
-        getType: function()
+        getUri: function()
         {
-            return "vault";
+            return "/vaults/" + this.getId();
         },
 
         /**
@@ -21998,6 +22641,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
              * @returns {String} The Gitana Vault id
              */
             this.getVaultId = function() { return vault.getId(); };
+        },
+
+        /**
+         * @OVERRIDE
+         */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_ARCHIVE;
         },
 
         /**
@@ -22255,7 +22906,7 @@ Gitana.OAuth2Http.COOKIE = "cookie";
          */
         getType: function()
         {
-            return "webhost";
+            return Gitana.TypedIDConstants.TYPE_WEB_HOST;
         },
 
         /**
@@ -22513,6 +23164,14 @@ Gitana.OAuth2Http.COOKIE = "cookie";
              * @returns {String} The Gitana Web Host id
              */
             this.getWebHostId = function() { return webhost.getId(); };
+        },
+
+        /**
+         * @OVERRIDE
+         */
+        getType: function()
+        {
+            return Gitana.TypedIDConstants.TYPE_AUTO_CLIENT_MAPPING;
         },
 
         /**

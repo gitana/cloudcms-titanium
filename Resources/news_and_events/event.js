@@ -16,7 +16,7 @@ cloudCMSContext.branch().readNode(nodeId).then(function() {
 
 	if(eventDetails) {
 		var eventDetailsRow = Ti.UI.createTableViewRow({
-			height : 'auto',
+			height : Ti.UI.SIZE,
 			header : 'Event Details',
 			layout : 'vertical',
 			left : 10,
@@ -44,8 +44,8 @@ cloudCMSContext.branch().readNode(nodeId).then(function() {
 					x : 0,
 					y : 1
 				},
-				textAlign : 'left',
-				height : 'auto',
+				textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+				height : Ti.UI.SIZE,
 				top : 5,
 				left : 10,
 				font : {
@@ -65,8 +65,8 @@ cloudCMSContext.branch().readNode(nodeId).then(function() {
 						x : 0,
 						y : 1
 					},
-					textAlign : 'left',
-					height : 'auto',
+					textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+					height : Ti.UI.SIZE,
 					top : 5,
 					left : 10,
 					bottom : 10,

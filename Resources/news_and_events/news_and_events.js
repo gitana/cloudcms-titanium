@@ -8,7 +8,7 @@ Ti.include("../common/content_common.js");
 var rows = [];
 
 var searchRow = Ti.UI.createTableViewRow({
-	height : 'auto'
+	height : Ti.UI.SIZE
 });
 
 var searchBox = Titanium.UI.createSearchBar({
@@ -75,7 +75,7 @@ var hasMoreRow = null;
 
 var createHasMoreRow = function() {
 	hasMoreRow = Ti.UI.createTableViewRow({
-		height : 'auto',
+		height : Ti.UI.SIZE,
 		title : 'More ...'
 	});
 	table.appendRow(hasMoreRow);
@@ -145,10 +145,12 @@ var addBatchRows = function() {
                     details : node.get('teaser')
                 });
 
+                Ti.API.info("Loaded Counter" +  loadedNodesCounter);
+
                 if (loadedNodesCounter == 0) {
                     table.appendRow(row);
                 } else {
-                    table.insertRowAfter(loadedNodesCounter, row);
+                    table.insertRowAfter(loadedNodesCounter-1, row);
                 }
                 loadedNodesCounter++;
             });

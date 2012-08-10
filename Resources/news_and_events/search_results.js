@@ -16,7 +16,7 @@ var hasMoreRow = null;
 var rows = [];
 
 var searchRow = Ti.UI.createTableViewRow({
-	height : 'auto'
+	height : Ti.UI.SIZE
 });
 
 var searchBox = Titanium.UI.createSearchBar({
@@ -56,7 +56,7 @@ rows.push(searchRow);
 
 var createHasMoreRow = function() {
 	hasMoreRow = Ti.UI.createTableViewRow({
-		height : 'auto',
+		height : Ti.UI.SIZE,
 		title : 'More ...'
 	});
 	table.appendRow(hasMoreRow);

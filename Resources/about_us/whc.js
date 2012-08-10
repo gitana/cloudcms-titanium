@@ -12,7 +12,7 @@ cloudCMSContext.branch().readNode('whc:aboutus').then(function() {
 		text : node.getDescription(),
 		color : '#000000',
 		shadowColor : '#FFFFE6',
-		textAlign : 'left',
+		textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
 		shadowOffset : {
 			x : 0,
 			y : 1
@@ -20,7 +20,7 @@ cloudCMSContext.branch().readNode('whc:aboutus').then(function() {
 		font : {
 			fontSize : 13
 		},
-		height : 'auto',
+		height : Ti.UI.SIZE,
 		width : 'auto',
 		top : 10,
 		left : 10,
@@ -28,7 +28,7 @@ cloudCMSContext.branch().readNode('whc:aboutus').then(function() {
 	});
 
 	var aboutUsRow = Ti.UI.createTableViewRow({
-		height : 'auto',
+		height : Ti.UI.SIZE,
 		header : 'About Us'
 	});
 
@@ -37,11 +37,11 @@ cloudCMSContext.branch().readNode('whc:aboutus').then(function() {
 	rows.push(aboutUsRow);
 
 	var photosRow = Ti.UI.createTableViewRow({
-		height : 'auto',
+		height : Ti.UI.SIZE,
 		header : 'Photos'
 	});
 
-	Titanium.App.fireEvent('show_indicator');
+	//Titanium.App.fireEvent('show_indicator');
 
 	var images = [];
 	
@@ -75,7 +75,6 @@ cloudCMSContext.branch().readNode('whc:aboutus').then(function() {
         });
 
 		nextButton.addEventListener('click', function(e) {
-            Ti.API.info("Clicked at " + count);
 			count = count < images.length -1 ? count + 1 : 0;
 			imageView.image = images[count];
 		});
@@ -95,17 +94,18 @@ cloudCMSContext.branch().readNode('whc:aboutus').then(function() {
 
 	this.then(function() {
 		var hoursRow = Ti.UI.createTableViewRow({
-			height : 'auto',
+			height : Ti.UI.SIZE,
 			header : 'Office Hours'
 		});
 
 		var hoursTextView = Ti.UI.createView({
-			height : 'auto',
+			height : Ti.UI.SIZE,
 			layout : 'vertical',
 			left : 10,
 			top : 10,
 			bottom : 10,
-			right : 10
+			right : 10,
+			left : 5
 		});
 
 		var hours = node.get('hours');
@@ -119,13 +119,14 @@ cloudCMSContext.branch().readNode('whc:aboutus').then(function() {
 					x : 0,
 					y : 1
 				},
-				textAlign : 'left',
-				height : 'auto',
+				textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+				height : Ti.UI.SIZE,
 				top : 5,
 				font : {
 					fontWeight:'bold',
                     fontSize : 16
-				}
+				},
+			    left : 5
 			});
             hoursTextView.add(dayLabel);
 			var hourLabel = Ti.UI.createLabel({
@@ -136,12 +137,13 @@ cloudCMSContext.branch().readNode('whc:aboutus').then(function() {
 					x : 0,
 					y : 1
 				},
-				textAlign : 'left',
-				height : 'auto',
+				textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+				height : Ti.UI.SIZE,
 				top : 5,
 				font : {
 					fontSize : 16
-				}
+				},
+			    left : 5
 			});
 			hoursTextView.add(hourLabel);
 		}
@@ -151,17 +153,18 @@ cloudCMSContext.branch().readNode('whc:aboutus').then(function() {
 		rows.push(hoursRow);
 
 		var contactsRow = Ti.UI.createTableViewRow({
-			height : 'auto',
+			height : Ti.UI.SIZE,
 			header : 'Contacts'
 		});
 
 		var textView = Ti.UI.createView({
-			height : 'auto',
+			height : Ti.UI.SIZE,
 			layout : 'vertical',
 			left : 10,
 			top : 10,
 			bottom : 10,
-			right : 10
+			right : 10,
+			left : 5
 		});
 
 		var address = node.get('address');
@@ -177,13 +180,14 @@ cloudCMSContext.branch().readNode('whc:aboutus').then(function() {
 					x : 0,
 					y : 1
 				},
-				textAlign : 'left',
-				height : 'auto',
+				textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+				height : Ti.UI.SIZE,
 				top : 5,
 				font : {
 					fontWeight : 'bold',
 					fontSize : 16
-				}
+				},
+			    left : 5
 			});
 			textView.add(addressLabel1);
 		}
@@ -196,13 +200,14 @@ cloudCMSContext.branch().readNode('whc:aboutus').then(function() {
 				x : 0,
 				y : 1
 			},
-			textAlign : 'left',
-			height : 'auto',
+			textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+			height : Ti.UI.SIZE,
 			top : 5,
 			font : {
 				fontWeight : 'bold',
 				fontSize : 16
-			}
+			},
+			left : 5
 		});
 
 		textView.add(addressLabel2);
@@ -215,12 +220,13 @@ cloudCMSContext.branch().readNode('whc:aboutus').then(function() {
 				x : 0,
 				y : 1
 			},
-			textAlign : 'left',
-			height : 'auto',
+			textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+			height : Ti.UI.SIZE,
 			top : 5,
 			font : {
 				fontSize : 16
-			}
+			},
+			left : 5
 		});
 
 		textView.add(phoneLabel);
@@ -233,12 +239,13 @@ cloudCMSContext.branch().readNode('whc:aboutus').then(function() {
 				x : 0,
 				y : 1
 			},
-			textAlign : 'left',
-			height : 'auto',
+			textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+			height : Ti.UI.SIZE,
 			top : 5,
 			font : {
 				fontSize : 16
-			}
+			},
+			left : 5
 		});
 
 		textView.add(emailLabel);

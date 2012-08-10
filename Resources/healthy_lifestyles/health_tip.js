@@ -18,7 +18,7 @@ cloudCMSContext.branch().readNode(nodeId).then(function() {
 	var bodyDetailsRow = createNodeBodyView(rows, node);
 
 	var row = Ti.UI.createTableViewRow({
-		height : 'auto',
+		height : Ti.UI.SIZE,
 		header : ''
 	});
 
