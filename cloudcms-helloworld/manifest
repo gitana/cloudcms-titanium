@@ -1,0 +1,8 @@
+#appname:cloudcms-helloworld
+#publisher:Cloud CMS
+#url:http://www.cloudcms.com
+#image:appicon.png
+#appid:helloworld
+#desc:Reference application that shows how to make connection to Cloud CMS platform.
+#type:ipad
+#guid:24f32680-266a-4803-8b9a-518ef6be7f5a

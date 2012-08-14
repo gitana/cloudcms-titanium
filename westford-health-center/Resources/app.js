@@ -5,7 +5,7 @@ var cloudCMSContext, whcDomain;
 
 var cloudCMSContextConfigs = {
 	"driver" : {
-		"baseURL" : 'http://localhost:8080',
+		"baseURL" : 'http://api.cloudcms.com:80',
 		"clientId" : "676e3450-6131-46c2-99cc-496aa2ad80fa",
 		"clientSecret" : "5fGkvesH/tWEMX6SpevL54rY6iJK5ADzLH963sif2ljrWvFOhV2zXv6rSpLF2uMWlJ9SG0uEO9uQO4JZac0i7DZquA/5W8ixJwhj76g0Ksk="
 	},
@@ -124,7 +124,7 @@ button.addEventListener('click', function() {
 	cloudCMSContext.then(function() {
 
 		this.subchain(this.platform()).queryDomains({
-			"title" : "Westford Health Center"
+			"title" : "Westford Health Center Domain"
 		}).keepOne().then(function() {
 			whcDomain = this;
 		});

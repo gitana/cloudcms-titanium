@@ -1,0 +1,8 @@
+#appname:cloudcms-creature
+#publisher:Cloud CMS
+#url:http://www.cloudcms.com
+#image:appicon.png
+#appid:cloudcms-creature
+#desc:Reference application which shows how to retrieve a single content item from Cloud CMS repository and then display its image and detailed description.
+#type:ipad
+#guid:3126c4a5-fafe-4652-b451-c3ba393b8ac0

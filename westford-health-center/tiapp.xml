@@ -11,10 +11,10 @@
     <id>com.cloudcms.tianium</id>
     <name>cloudcms-titanium</name>
     <version>1.0</version>
-    <publisher>Gitana Software Inc.</publisher>
+    <publisher>Cloud CMS</publisher>
     <url>http://www.cloudcms.com</url>
-    <description>Gitana Software Inc.</description>
-    <copyright>2012</copyright>
+    <description>Full reference application which shows how to build a mobile based information portal using Cloud CMS and Titanium.</description>
+    <copyright>Copyright © 2012 Gitana Software, Inc. All rights reserved.</copyright>
     <icon>cloudcms-icon.png</icon>
     <persistent-wifi>false</persistent-wifi>
     <prerendered-icon>false</prerendered-icon>

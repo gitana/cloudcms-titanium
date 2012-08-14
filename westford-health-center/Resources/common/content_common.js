@@ -111,9 +111,9 @@ var getHelpfulStats = function(commentNode) {
  */
 var getSpamStats = function(commentNode) {
 	if(commentNode.object['stats'] && commentNode.object['stats']['a:deems_spam']) {
-		return commentNode.object['stats']['a:deems_spam'] + ' people marked this comment as inappropriate.';
+		return commentNode.object['stats']['a:deems_spam'] + ' people marked this comment as spam.';
 	} else {
-		return '';
+		return '0 people marked this comment as spam.';
 	}
 };
 
@@ -161,7 +161,7 @@ var createCommentNodeView = function(commentNode) {
 	var starBarView = Ti.UI.createView({
 		height : Ti.UI.SIZE,
 		layout : 'horizontal',
-		left : 0,
+		left : 5,
 		top : 5,
 		bottom : 5,
 		right : 5
@@ -233,8 +233,9 @@ var createCommentNodeView = function(commentNode) {
 			fontSize : 13
 		},
 		height : Ti.UI.SIZE,
-		top : 10,
-        left : 5
+		top : 15,
+        left : 5,
+        bottom : 0
 	});
 
 	textView.add(helpfulLabel);
@@ -243,7 +244,7 @@ var createCommentNodeView = function(commentNode) {
 		text : getSpamStats(commentNode),
 		color : '#000000',
 		shadowColor : '#FFFFE6',
-		textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
+		//textAlign : Ti.UI.TEXT_ALIGNMENT_LEFT,
 		shadowOffset : {
 			x : 0,
 			y : 1
@@ -252,8 +253,9 @@ var createCommentNodeView = function(commentNode) {
 			fontSize : 13
 		},
 		height : Ti.UI.SIZE,
-		top : 10,
-        left : 5
+		top : 5,
+        left : 5,
+        bottom : 5
 	});
 
 	textView.add(spamLabel);
